@@ -1,0 +1,369 @@
+#include <allegro.h>
+#include "inicia.h"
+#include <cstdlib>
+#define ANCHO 880
+#define ALTO  690
+#define FILA 24//eje y
+#define COLU 31// eje x
+BITMAP *buffer;
+BITMAP *muro;
+BITMAP *food;
+BITMAP *poder;
+BITMAP *tin;
+BITMAP *muerte;
+BITMAP* ene;
+BITMAP* enemif;
+
+char mapa[FILA][COLU]=
+{   "                              ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X             X             XX",
+    "X XXXX XXXXXX X XXXXXX XXXX XX",
+    "X XXXX XXXXXX X XXXXXX XXXX XX",
+    "X                           XX",
+    "X XXXX X XXXXXXXXXXX X XXXX XX",
+    "X      X      X      X      XX",
+    "XXXXXX XXXXXX X XXXXXX XXXXXXX",
+    "     X X             X X      ",
+    "XXXXXX X XXXXX XXXXX X XXXXXXX",
+    "         X         X          ",
+    "XXXXXX X X XXXXXXX X X XXXXXXX",
+    "     X X             X X      ",
+    "XXXXXX X XXXXXXXXXXX X XXXXXXX",
+    "X             X             XX",
+    "X XXXX XXXXXX X XXXXXX XXXX XX",
+    "X    X     oo    O     X    XX",
+    "XXXX X X XXXXXXXXXXX X X XXXXX",
+    "X      X      X      X      XX",
+    "X XXXXXXXXXXX X XXXXXXXXXXX XX",
+    "X                           XX",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+};
+
+struct PERSONAJE
+{
+    int x, y;
+    int dir;
+    BITMAP *pac;
+
+    void inicia();
+    void carga(char* elpac);
+    void dibuja_per(BITMAP* buffer,BITMAP* tin);
+    void dibuja_per2(BITMAP* buffer,BITMAP* tin);
+};
+void PERSONAJE::inicia()
+{
+    x=30*14, y = 30*17;
+    dir=0;
+}
+void PERSONAJE::carga(char* elpac)
+{
+    pac= load_bitmap(elpac,NULL);
+}
+void PERSONAJE::dibuja_per(BITMAP* buffer,BITMAP* tin)
+{
+
+    blit(pac,tin,dir*33,0,0,0,33,33);
+    draw_sprite(buffer,tin,x,y);//respeta la tranferencia del buffer pequeño
+}
+void PERSONAJE::dibuja_per2(BITMAP* buffer,BITMAP* tin)
+{
+    clear(tin);
+    blit(pac,tin,4*33,0,0,0,33,33);
+    draw_sprite(buffer,tin,x,y);
+
+}
+
+void impri_mapa(PERSONAJE *P)
+{
+    int fil,col;
+
+for(fil=0;fil<FILA;fil++)
+    {
+        for(col=0;col<COLU;col++)
+    {
+        if(mapa[fil][col]== 'X'){draw_sprite(buffer,muro,col*30,fil*30);}
+        else if(mapa[fil][col]== 'o'){draw_sprite(buffer,food,col*30,fil*30);
+        if(P->y/30==fil && P->x/30==col){ mapa[fil][col] = ' ';}}
+        else if(mapa[fil][col]== 'O'){draw_sprite(buffer,poder,col*30,fil*30);
+        if(P->y/30==fil && P->x/30==col){ mapa[fil][col] = ' ';}}
+    }
+    }
+}
+void pantalla()
+{
+blit(buffer,screen,0,0,0,0,ANCHO,ALTO);
+}
+
+struct fantasma
+{
+    int fx, fy;
+    int fdir;
+    BITMAP* enemigo;
+    BITMAP* enemigof;
+    void iniciaf();
+    void cargar(char* elfan);
+    void cargar2(char* elfan2);
+    void dibujar_fantasma(BITMAP* buffer,BITMAP* ene);
+    void dibujar_fantasma2(BITMAP* buffer,BITMAP* ene);
+
+};
+void fantasma::iniciaf()
+{
+    fx=30*2, fy = 30*2;
+    fdir=0;
+}
+void fantasma::cargar(char* elfan)
+{
+    enemigo= load_bitmap(elfan,NULL);
+}
+void fantasma::cargar2(char* elfan2)
+{
+    enemigof= load_bitmap(elfan2,NULL);
+}
+void fantasma::dibujar_fantasma(BITMAP* buffer,BITMAP* ene)
+{
+    blit(enemigo,ene,0,0,0,0,30,30);
+    draw_sprite(buffer,ene,fx,fy);
+}
+void fantasma::dibujar_fantasma2(BITMAP* buffer,BITMAP* ene)
+{
+    blit(enemigof,ene,0,0,0,0,30,30);
+    draw_sprite(buffer,ene,fx,fy);
+}
+void mover_fantasma(fantasma *A)
+{
+
+
+
+    if(A->fdir== 0)
+    {
+        if(mapa[A->fy/30][(A->fx-30)/30]!='X')
+        {
+            A->fx-=30;}
+            else {A->fdir = rand()%4;
+        }
+    }
+     if(A->fdir== 1)
+    {
+        if(mapa[A->fy/30][(A->fx+30)/30]!='X')
+        {
+            A->fx+=30;}
+            else {A->fdir = rand()%4;
+        }
+    }
+     if(A->fdir== 2)
+    {
+        if(mapa[(A->fy-30)/30][(A->fx)/30]!='X')
+        {
+            A->fy-=30;
+
+        }
+
+
+
+        }
+            else {A->fdir = rand()%4;
+        }
+
+
+      if(A->fdir== 3)
+    {
+        if(mapa[(A->fy+30)/30][(A->fx)/30]!='X')
+        {
+            A->fy+=30;
+
+        }
+
+
+        }
+            else {A->fdir = rand()%4;
+        }
+}
+void mover_fantasma2(fantasma *B)
+{
+
+
+
+    if(B->fdir== 0)
+    {
+        if(mapa[B->fy/30][(B->fx-30)/30]!='X')
+        {
+            B->fx-=30;}
+            else {B->fdir = rand()%4;
+        }
+    }
+     if(B->fdir== 1)
+    {
+        if(mapa[B->fy/30][(B->fx+30)/30]!='X')
+        {
+            B->fx+=30;}
+            else {B->fdir = rand()%4;
+        }
+    }
+     if(B->fdir== 2)
+    {
+        if(mapa[(B->fy-30)/30][(B->fx)/30]!='X')
+        {
+            B->fy-=30;
+
+        }
+}
+            else {B->fdir = rand()%4;
+        }
+
+
+      if(B->fdir== 3)
+    {
+        if(mapa[(B->fy+30)/30][(B->fx)/30]!='X')
+        {
+            B->fy+=30;
+
+        }
+    }
+            else {B->fdir = rand()%4;
+        }
+}
+bool game_over()
+{
+
+   int fil,col;
+
+for(fil=0;fil<FILA;fil++)
+    {
+        for(col=0;col<COLU;col++)
+        {
+        if(mapa[fil][col]== 'o')
+        {
+            return true;
+        }
+        }
+    }return false;
+}
+
+
+int main ()
+{
+    inicia_allegro(ANCHO,ALTO);
+    inicia_audio(70,70);
+    buffer= create_bitmap(ANCHO,ALTO);
+    tin= create_bitmap(33,33);
+    muro= load_bitmap("roca.bmp",NULL);
+    food= load_bitmap("comida.bmp",NULL);
+    poder= load_bitmap("power.bmp",NULL);
+    muerte= load_bitmap("muerte.bmp",NULL);
+    PERSONAJE P;
+    fantasma A;
+    //fantasma B;
+    A.iniciaf();
+    A.cargar("enemigo.bmp");
+    //B.cargar2("enemigoj.bmp");
+    P.inicia();
+    P.carga("pacman.bmp");
+   // A.fx=30*2;
+   // A.fy=30*3;
+   // A.fdir=rand()%4;
+    //B.fx=30*15;
+   // B.fy=30*15;
+    //B.fdir=rand()%4;
+
+     while(!key[KEY_ESC] && game_over())
+    {
+
+        P.dir = 4;
+        if(key[KEY_RIGHT]){P.dir = 1;}
+        else if(key[KEY_LEFT]){P.dir = 0;}
+        else if(key[KEY_UP]){P.dir = 2;}
+        else if(key[KEY_DOWN]){P.dir = 3;}
+
+        if(P.dir==0)
+        {if(mapa[P.y/30][(P.x-30)/30] != 'X')
+        {P.x-=30;}
+         else P.dir = 4;
+        }
+        if(P.dir==1)
+        {if(mapa[P.y/30][(P.x+30)/30] != 'X')
+        {P.x+=30;}
+         else P.dir = 4;
+        }
+        if(P.dir==2)
+        {if(mapa[(P.y-30)/30][(P.x)/30] != 'X')
+        {P.y-=30;}
+        else P.dir = 4;
+        }
+        if(P.dir==3)
+        {if(mapa[(P.y+30)/30][(P.x)/30] != 'X')
+        {P.y+=30;}
+        else P.dir = 4;
+        }
+        if(P.x <= -30){P.x=880;}//izquierda
+        else if(P.x >= 880){P.x=-30;}//derecha
+
+    clear(buffer);
+    impri_mapa(&P);
+    P.dibuja_per(buffer,tin);
+   //A.dibujar_fantasma(buffer,ene);
+   // mover_fantasma(&A);////////////////////////////
+    //fantasma toca a pacman
+/*if(P.y==A.fy && P.x==A.fx)
+    {
+        for(int j=0; j<= 5; j++)
+        {
+            clear(tin);
+            clear(buffer);
+            impri_mapa(&P);
+            blit(muerte,tin,j*33,0,0,0,33,33);
+            draw_sprite(buffer,tin,P.x,P.y);
+            pantalla();
+            rest(80);
+        }
+       P.x=30*14;
+       P.y=30*17;
+       P.dir=4;
+    }*/
+
+    pantalla();
+    rest(100);
+    P.dibuja_per2(buffer,tin);
+    pantalla();
+    rest(100);
+ //cambio de fantasmas
+/* int fil,col;
+ bool pw;
+for(fil=0;fil<FILA;fil++)
+    {
+        for(col=0;col<COLU;col++)
+        {
+        if(mapa[fil][col]== 'O')
+        {
+            pw=false;
+        }
+        else if(P.y/30==fil && P.x/30==col)
+        {
+            pw=true;
+        }
+        }
+    }
+    if (pw=true)
+    {
+        clear(ene);
+        B.dibujar_fantasma(buffer,ene);
+        mover_fantasma2(&B);///////////////////////////////
+            pantalla();
+    }
+//pacman come fantasma
+if(P.y==B.fy && P.x==B.fx)
+    {
+        for(int j=0; j<= 5; j++)
+        {
+            clear(ene);
+        }
+    }*/
+
+}   //readkey();
+
+    //destroy_bitmap(buffer);
+
+    return 0;
+}
+END_OF_MAIN ()
