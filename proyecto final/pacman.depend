@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1475904089 source:c:\users\dell\desktop\progamacion uaslp\proyecto\proyecto final\inicia.cpp
+	"inicia.h"
+	<allegro.h>
+
+1475904090 c:\users\dell\desktop\progamacion uaslp\proyecto\proyecto final\inicia.h
+
+1559147239 source:c:\users\dell\desktop\progamacion uaslp\proyecto\proyecto final\main.cpp
+	<allegro.h>
+	"inicia.h"
+	<cstdlib>
+
+1559146255 source:c:\users\dell\desktop\progamacion uaslp\proyecto\proyecto final\personajes.cpp
+	<allegro.h>
+
+1559089263 c:\users\dell\desktop\progamacion uaslp\proyecto\proyecto final\personajes.h
+	<allegro.h>
+
